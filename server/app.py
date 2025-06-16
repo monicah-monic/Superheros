@@ -18,12 +18,48 @@ def index():
 def get_heros():
     heros= Hero.query.all()
     return jsonify([
-        {"name": hero.name,
-        "super_name": hero.super_name,
+        {
+            "id": hero.id,
+            "name": hero.name,
+            "super_name": hero.super_name,
         } 
         for hero in heros
         ])
 
+
+
+
+
+
+@app.route('/powers', methods=['GET'])
+def get_powers():
+    powers= Power.query.all()
+    return jsonify([
+        {
+            "description": power.description,
+            "id":power.id,
+            "name": power.name,
+        
+        } 
+        for power in powers
+        ])
+
+@app.route('/powers/<int:id>', methods=['GET'])
+def get_powers_by_id(id):
+    try:
+        power = Power.query.get(id)
+        return jsonify([
+            {
+                "description": power.description,
+                "id":power.id,
+                "name": power.name
+            }
+        ])
+    except Exception as e:
+        print(f"Power not found: {e}")
+        return make_response(jsonify({"error": "Internal server error"}), 500)
+    
+    
 # @app.route('/heros/<int:id>', methods=['GET'])
 # def get_heros_by_id(id):
 #     hero = Hero.query.get(id)
