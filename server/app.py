@@ -26,6 +26,26 @@ def get_heros():
         for hero in heros
         ])
 
+@app.route('/heroes/<int:id>')
+def heroes_by_id(id):
+    hero = Hero.query.get(id)
+    if not hero:
+        return jsonify({'error': 'Hero not found'}), 404
+
+    hero_details = hero.to_dict(only=('id', 'name', 'super_name'))
+    hero_details['hero_powers'] = [
+        {
+            'hero_id': hero_power.hero_id,
+            'id': hero_power.id,
+            'power': hero_power.power.to_dict(only=('description', 'id', 'name')),
+            'power_id': hero_power.power_id,
+            'strength': hero_power.strength
+        }
+        for hero_power in hero.hero_powers
+    ]
+    return jsonify(hero_details), 200
+
+
 @app.route('/powers', methods=['GET'])
 def get_powers():
     powers= Power.query.all()
@@ -39,6 +59,7 @@ def get_powers():
         for power in powers
         ])
 
+
 @app.route('/powers/<int:id>', methods=['GET'])
 def get_powers_by_id(id):
     try:
@@ -51,8 +72,8 @@ def get_powers_by_id(id):
             }
         ])
     except Exception as e:
-        print(f"Power not found: {e}")
-        return jsonify({"error": "Internal server error"}), 500
+        print(f"{e}")
+        return jsonify({"error": "Power not found:"}), 500
     
 @app.route('/powers/<int:id>', methods=['PATCH'])    
 def update_power_by_id(id):
@@ -74,8 +95,8 @@ def update_power_by_id(id):
         })
 
     except Exception as e:
-        print(f"Error updating power: {e}")
-        return make_response(jsonify({"error": "Internal server error"}), 500)
+        print(f" {e}")
+        return make_response(jsonify({"error": "Power not found"}), 500)
     
 
 @app.route('/hero_powers', methods=['POST'])
@@ -114,26 +135,6 @@ def add_hero_power():
         return jsonify({'errors': str(exc)}), 400   
     
 
-# @app.route('/heros/<int:id>', methods=['GET'])
-# def get_heros_by_id(id):
-#     hero = Hero.query.get(id)
-#     try:
-#        if hero:
-#         return jsonify([{
-#              "id": hero.id,
-#             "name": hero.name,
-#             "super_name": hero.super_name,
-#             "hero_powers":[{
-#                 "hero_id":hero.id,
-#                 "id": hero.id,
-#                 "description": hero.descrption
-
-#             }
-#                            ]
-#         }])
-#     except Exception as e:
-#         print(f"Power not found: {e}")
-#         return jsonify({"error": "Internal server error"}), 500
-
+                     
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
