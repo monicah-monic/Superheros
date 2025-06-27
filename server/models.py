@@ -25,7 +25,7 @@ class Power(db.Model, SerializerMixin):
     hero_powers = db.relationship('HeroPower', back_populates= 'power', cascade='all, delete-orphan')
 
     @validates('description')
-    def validate_description(self, key, description):
+    def validate_description(self, description):
         if not description or len(description)<20:
             raise ValueError("Description must be present and at least 20 characters long")
         return description
@@ -43,7 +43,7 @@ class HeroPower(db.Model, SerializerMixin):
     power = db.relationship('Power', back_populates='hero_powers')
 
     @validates('strength')
-    def validate_strength(self, key, strength):
+    def validate_strength(self, strength):
         values = ['Strong', 'Weak', 'Average']
         if strength not in values:
             raise ValueError("strength must be one of the following values: 'Strong', 'Weak', 'Average'")
